@@ -1,35 +1,23 @@
+import h from 'hyperscript';
 import hh from 'hyperscript-helpers';
-import { h, diff, patch } from 'virtual-dom';
-import createElement from 'virtual-dom/create-element';
 
 const { div, button } = hh(h);
 
-const initModal = 0;
+const intialModel = 0;
 
 function view(dispatch, model) {
   return div([
     div({ className: 'mv2' }, `Count: ${model}`),
-    button(
-      { className: 'pv1 ph2 mr2', onclick: () => dispatch(MSGS.ADD) },
-      '+'
-    ),
-    button(
-      { className: 'pv1 ph2', onclick: () => dispatch(MSGS.SUBSTRACT) },
-      '-'
-    ),
+    button({ className: 'pv1 ph2 mr2', onclick: () => dispatch('plus') }, '+'),
+    button({ className: 'pv1 ph2', onclick: () => dispatch('minus') }, '-'),
   ]);
 }
 
-const MSGS = {
-  ADD: 'ADD',
-  SUBSTRACT: 'SUBSTRACT',
-};
-
 function update(msg, model) {
   switch (msg) {
-    case MSGS.ADD:
+    case 'plus':
       return model + 1;
-    case MSGS.SUBSTRACT:
+    case 'minus':
       return model - 1;
     default:
       return model;
@@ -37,23 +25,21 @@ function update(msg, model) {
 }
 
 // impure code below
-function app(initModal, update, view, node) {
-  let model = initModal;
+function app(intialModel, update, view, node) {
+  let model = intialModel;
   let currentView = view(dispatch, model);
-  let rootNode = createElement(currentView);
-  node.appendChild(rootNode);
+  node.appendChild(currentView);
 
   function dispatch(msg) {
     model = update(msg, model);
     const updatedView = view(dispatch, model);
-    const patches = diff(currentView, updatedView);
-    rootNode = patch(rootNode, patches);
+    node.replaceChild(updatedView, currentView);
     currentView = updatedView;
   }
 }
 
 const rootNode = document.getElementById('app');
 
-app(initModal, update, view, rootNode);
+app(intialModel, update, view, rootNode);
 
-// rootNode.appendChild(view(update('plus', initModal)));
+// rootNode.appendChild(view(update('minus', intialModel)));
